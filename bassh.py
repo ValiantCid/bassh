@@ -51,15 +51,22 @@ with settings(host_string=args.host,
 			if args.sudo:
 				if sudo(args.execute).failed:
 					print FAIL_STRING, args.execute
+					sys.exit(1)
 			else:
 				if run(args.execute).failed:
 					print FAIL_STRING, args.execute
+					sys.exit(1)
 
 		if args.file:
 			if not os.path.isfile(args.file): 
 				print "Could not find file", args.file
-			time = int(time.mktime(datetime.datetime.now().timetuple()))
-			filename = str(time) + args.file + '.tmp'
+				sys.exit(1)
+			time_now = int(time.mktime(
+				datetime.datetime.now().timetuple())
+			)
+			filename = '.bassh_tmp.{0}_{1}'.format(
+					str(time_now),
+					"_".join(args.file.split(".")))
 
 			#: allow for graceful exit on Ctrl+C
 			def signal_handler(sig, frame):
@@ -71,5 +78,4 @@ with settings(host_string=args.host,
 			put(args.file, filename) #: upload the file
 			run('sh ' + filename)    #: run the file 
 			run('rm ' + filename)    #: remove the file
-
 
